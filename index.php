@@ -108,7 +108,7 @@
             public static function set($target_file)
 
             {
-                //static function to use header function
+                
                 header('Location: index.php?page=display&filename=' .$target_file );
                 
             }
@@ -125,6 +125,64 @@
 
             $target_dir = "file_uploads/";
             $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+
+
+             
+             $csv_mimetypes = array(
+            'text/csv',
+            'text/plain',
+            'application/csv',
+            'text/comma-separated-values',
+            'application/excel',
+            'application/vnd.ms-excel',
+            'application/vnd.msexcel',
+            'text/anytext',
+            'application/octet-stream',
+            'application/txt',
+        );
+             
+
+
+            if(($_FILES["fileToUpload"]["size"] > 5000000) || (!in_array($_FILES['fileToUpload']['type'], $csv_mimetypes))){           
+                echo "<b><h3>Sorry, your file is too large or not in CSV format.</h3></b>";
+            
+        }
+            
+        else if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)){        
+                echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+                setHeader::set($target_file);
+                
+            }    
+                 
+        }
+
+
+        }
+
+        class display extends page{
+
+            public function get(){
+
+         
+         $file= fopen($_GET['filename'],"r");
+         $this->html .= '<h1>Table</h1>';
+        $this->html .= '<table border ="1">';
+        
+        while (!feof($file)) {
+            $line=fgetcsv($file);
+
+           
+            $a=(array) $line;
+           
+            foreach ($a as $value ) {
+               $this->html .= "<td> $value </td>";
+            }
+            $this->html .=  '</tr>';
+        }
+        $this->html .=  '</table>';
+
+         
+        fclose($file);
 
 }}
 
