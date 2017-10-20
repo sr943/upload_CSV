@@ -28,16 +28,16 @@
          //set default page request when no parameters are in URL
                 $pageRequest ='homepage';
                 //check if there are parameters
-                 if(isset($_REQUEST['page'])) {
+                if(isset($_REQUEST['page'])) {
 
                     //load the type of page the request wants into page request
-                   
+                 
                     $pageRequest = $_REQUEST['page'];
                 }
          //instantiate the class that is being requested
-                 $page = new $pageRequest;
+                $page = new $pageRequest;
 
-                 if($_SERVER['REQUEST_METHOD'] == 'GET') {
+                if($_SERVER['REQUEST_METHOD'] == 'GET') {
                     $page->get();
                 } else {
                     $page->post();
@@ -75,60 +75,60 @@
 
             {
                 // Create an upload form
-                 $form = '<form action="index.php?page=choosefile" method="post" enctype="multipart/form-data">';
+               $form = '<form action="index.php?page=choosefile" method="post" enctype="multipart/form-data">';
                
-                $form .= '<input type="file" name="fileToUpload" id="fileToUpload">';
-                $form .= '<br> <br>';
+               $form .= '<input type="file" name="fileToUpload" id="fileToUpload">';
+               $form .= '<br> <br>';
                
-                $form .= '<input type="submit" value="Upload" name="submit">';
-                $form .= '</form> ';
-                return $form;
+               $form .= '<input type="submit" value="Upload" name="submit">';
+               $form .= '</form> ';
+               return $form;
 
-            }
-        }
-
-
-
-
-        class homepage extends page {
-
-            public function get() {
-
-                 $this->html .= '<h1>Upload Form</h1>';
-                $this->html .= globals::all();
-            }
-
-        }
+           }
+       }
 
 
 
-        class  setHeader
-        {
-            
-            public static function set($target_file)
 
-            {
-                
-                header('Location: index.php?page=display&filename=' .$target_file );
-                
-            }
-        }
+       class homepage extends page {
 
+        public function get() {
 
+           $this->html .= '<h1>Upload Form</h1>';
+           $this->html .= globals::all();
+       }
 
-        class choosefile {
+   }
 
 
 
-        public function post(){
+   class  setHeader
+   {
+    
+    public static function set($target_file)
+
+    {
+                //static function to use header function
+        header('Location: index.php?page=display&filename=' .$target_file );
+        
+    }
+}
 
 
-            $target_dir = "file_uploads/";
-            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+
+class choosefile {
 
 
-             
-             $csv_mimetypes = array(
+
+    public function post(){
+
+
+        $target_dir = "file_uploads/";
+        $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+
+
+             // To check if the file extension is CSV
+        $csv_mimetypes = array(
             'text/csv',
             'text/plain',
             'application/csv',
@@ -140,54 +140,54 @@
             'application/octet-stream',
             'application/txt',
         );
-             
-
-
-            if(($_FILES["fileToUpload"]["size"] > 5000000) || (!in_array($_FILES['fileToUpload']['type'], $csv_mimetypes))){           
-                echo "<b><h3>Sorry, your file is too large or not in CSV format.</h3></b>";
-            
-        }
-            
-        else if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)){        
-                echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
-                setHeader::set($target_file);
-                
-            }    
-                 
-        }
-
-
-        }
-
-        class display extends page{
-
-            public function get(){
-
-         
-         $file= fopen($_GET['filename'],"r");
-         $this->html .= '<h1>Table</h1>';
-        $this->html .= '<table border ="1">';
         
-        while (!feof($file)) {
-            $line=fgetcsv($file);
 
-           
-            $a=(array) $line;
-           
-            foreach ($a as $value ) {
-               $this->html .= "<td> $value </td>";
-            }
-            $this->html .=  '</tr>';
+
+        if(($_FILES["fileToUpload"]["size"] > 5000000) || (!in_array($_FILES['fileToUpload']['type'], $csv_mimetypes))){           
+            echo "<b><h3>Sorry, your file is too large or not in CSV format.</h3></b>";
+            
         }
-        $this->html .=  '</table>';
+            //if the file is in correct format and size then move the file to target file
+        else if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)){        
+            echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+            setHeader::set($target_file);
+            
+        }    
+        
+    }
 
-         
-        fclose($file);
+
+}
+
+class display extends page{
+
+    public function get(){
+
+         //to open the file set in the filename from URL
+       $file= fopen($_GET['filename'],"r");
+       $this->html .= '<h1>Table</h1>';
+       $this->html .= '<table border ="1">';
+        //check the file till end of the file
+       while (!feof($file)) {
+        $line=fgetcsv($file);
+
+           //Type cast to array
+        $a=(array) $line;
+           //convert every array into one cell
+        foreach ($a as $value ) {
+         $this->html .= "<td> $value </td>";
+     }
+     $this->html .=  '</tr>';
+ }
+ $this->html .=  '</table>';
+
+         //close the file
+ fclose($file);
 
 }}
 
 
-        ?>
+?>
 
 
 
@@ -206,4 +206,4 @@
 
 
 
-                
+
